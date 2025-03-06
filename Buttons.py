@@ -1,15 +1,11 @@
-from requests import delete
-from telebot.types import InlineKeyboardButton,ReplyKeyboardMarkup
-
-from Notes import create
-
+from telebot.types import InlineKeyboardButton, ReplyKeyboardMarkup, InlineKeyboardMarkup
 
 def start_button_func():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True,row_width=2)
     Schedule = InlineKeyboardButton("/Розклад")
     notes = InlineKeyboardButton("/Нотатки")
     site = InlineKeyboardButton("/Сайт")
-    app = InlineKeyboardButton("/App")
+    app = InlineKeyboardButton("/Додаток")
     homework = InlineKeyboardButton("/Домашня")
     keyboard.add(Schedule, notes, site, app, homework)
     return keyboard
@@ -48,9 +44,9 @@ pass
 
 def notes_button():
     keyboard = ReplyKeyboardMarkup(one_time_keyboard=True)
-    create = InlineKeyboardButton("Створити")
-    deletee = InlineKeyboardButton("Видалити")
-    show = InlineKeyboardButton("Показати")
+    create = InlineKeyboardButton("/Створити")
+    deletee = InlineKeyboardButton("/Очистити")
+    show = InlineKeyboardButton("/Переглянути")
     keyboard.add(create, deletee, show)
     return keyboard
 pass
@@ -73,6 +69,7 @@ def app_buttons():
     markup.add(keyboard, keyboard_x2)
     return markup
 pass
+
 
 
 
