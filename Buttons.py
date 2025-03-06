@@ -46,7 +46,7 @@ def notes_button():
     keyboard = ReplyKeyboardMarkup(one_time_keyboard=True)
     create = InlineKeyboardButton("/Створити")
     deletee = InlineKeyboardButton("/Очистити")
-    show = InlineKeyboardButton("/Переглянути")
+    show = InlineKeyboardButton("/Подивитись")
     keyboard.add(create, deletee, show)
     return keyboard
 pass

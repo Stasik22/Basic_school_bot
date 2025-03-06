@@ -3,8 +3,9 @@ import json
 import telebot as tb
 
 
+from datetime import datetime
 
-from Buttons import start_button_func, schedule_buttons
+from Buttons import start_button_func, schedule_buttons, notes_button
 from Buttons import class_num
 from Schedule import scheule_11C
 from Buttons import des
@@ -25,7 +26,7 @@ def notes_load():
 
 def notes_save(notes):
     with open(NOTES_FILE, "w", encoding="utf-8") as file:
-        json.dump(file, notes, indent=4, ensure_ascii=False)
+        json.dump(notes,file, indent=4, ensure_ascii=False)
 
 notes_data = notes_load()
 
@@ -35,7 +36,55 @@ def notes(message):
     user_notes = notes_data.get(chat_id, [])
 
     if isinstance(user_notes, list):
-        notes_text = "\n".join(f"{i + 1}.{note.get('text', 'yt')}")
+        notes_text = "\n".join(f"{i + 1}. {note.get('text', 'Невідома нотатка')} (📅 {note.get('date', 'Невідома дата')})" for i, note in enumerate(user_notes) if isinstance(note, dict))
+        bot.send_message(chat_id, f"f<b>Ваші нотатки</b>\n{notes_text}" if notes_text else "<b>У вас ще немає нотаток</b>", parse_mode="html" ,reply_markup=notes_button())
+    else:
+        bot.send_message(chat_id, "<b>Помилка формату нотаток</b>", parse_mode="html", reply_markup=notes_button())
+
+
+@bot.message_handler(commands=["Створити"])
+def create_note(message):
+    bot.send_message(message.chat.id, "<b>Напишіть вашу нотатку:</b>", parse_mode="html")
+    bot.register_next_step_handler(message, save_note)
+
+
+def save_note(message):
+    chat_id = str(message.chat.id)
+    note_text = message.text.strip()
+
+    if note_text:
+        note_entry = {"text": note_text, "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+        notes_data.setdefault(chat_id, []).append(note_entry)
+        notes_save(notes_data)
+        bot.send_message(chat_id, "✅ Нотатку збережено!", parse_mode="html", reply_markup=notes_button())
+    else:
+        bot.send_message(chat_id, "❌ Нотатка не може бути порожньою!", parse_mode="html")
+
+
+@bot.message_handler(commands=["Очистити"])
+def clear_notes(message):
+    chat_id = str(message.chat.id)
+    if chat_id in notes_data:
+        del notes_data[chat_id]
+        notes_save(notes_data)
+        bot.send_message(chat_id, "🗑️<b>Немає нотаток,оскільки всі нотатки видалені</b>",parse_mode="html", reply_markup=notes_button())
+    else:
+        bot.send_message(chat_id, "❗<b>У️ вас немає нотаток для видалення</b>", parse_mode="html")
+    pass
+
+
+
+@bot.message_handler(commands=["Подивитись"])
+def view_notes(message):
+    chat_id = str(message.chat.id)
+    user_notes = notes_data.get(chat_id, [])
+
+    if isinstance(user_notes, list):
+        notes_text = "\n".join(f"{i + 1}. {note.get('text', 'Невідома нотатка')} (📅 {note.get('date', 'Невідома дата')})" for i, note in enumerate(user_notes) if isinstance(note, dict))
+        bot.send_message(chat_id, f"<b>Ваші нотатки:</b>\n{notes_text}" if notes_text else "<b>У вас ще немає нотаток.</b>",parse_mode="html")
+    else:
+        bot.send_message(chat_id,"<b>‽Помилка в форматі нотаток</b>", parse_mode="html")
+    pass
 
 
 @bot.message_handler(commands=['Сайт'])
@@ -63,32 +112,33 @@ def Schedule_function(message):
 
 @bot.message_handler(commands=["11_класи"])
 def eleventh(message):
+    chat_id = message.chat.id
     bot.send_message(message.chat.id,"<b>Оберіть літеру вашого класу</b>", parse_mode="html", reply_markup=class_num())
     @bot.message_handler(commands=["А"])
     def A_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>", reply_markup=des(), parse_mode="html")
+        bot.send_message(chat_id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>", reply_markup=des(), parse_mode="html")
     pass
 
     @bot.message_handler(commands=["Б"])
     def B_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>", reply_markup=des(), parse_mode="html")
+        bot.send_message(chat_id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>", reply_markup=des(), parse_mode="html")
     pass
 
     @bot.message_handler(commands=["В"])
     def C_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
+        bot.send_message(chat_id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
     pass
 
     @bot.message_handler(commands=["Г"])
     def G_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
+        bot.send_message(chat_id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
     pass
 
     @bot.message_handler(commands=["Текст"])
     def text_message(message):
-        bot.send_message(message.chat.id, scheule_11C, parse_mode="html")
+        bot.send_message(chat_id, scheule_11C, parse_mode="html")
         time.sleep(1)
-        bot.send_message(message.chat.id, "<b>Оберіть функцію з поданих нижче</b>", reply_markup=start_button_func(),parse_mode="HTML")
+        bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", reply_markup=start_button_func(),parse_mode="HTML")
     pass
 
     @bot.message_handler(commands=["Фото"])
@@ -96,14 +146,15 @@ def eleventh(message):
         with open("/Users/stasuk2007/Documents/istockphoto-525430193-612x612.jpg", "rb") as file:
             bot.send_photo(message.chat.id, file)
             time.sleep(1)
-            bot.send_message(message.chat.id, "<b>Оберіть функцію з поданих нижче</b>",reply_markup=start_button_func(), parse_mode="HTML")
+            bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>",reply_markup=start_button_func(), parse_mode="HTML")
         pass
     pass
 
 
 @bot.message_handler(commands=["10_класи"])
 def tenth(message):
-    bot.send_message(message.chat.id, "<b>Оберіть літеру вашого класу</b>", parse_mode="html", reply_markup=class_num())
+    chat_id = message.chat.id
+    bot.send_message(chat_id, "<b>Оберіть літеру вашого класу</b>", parse_mode="html", reply_markup=class_num())
 
     @bot.message_handler(commands=["А"])
     def A_class(message):
