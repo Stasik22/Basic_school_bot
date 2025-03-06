@@ -55,6 +55,25 @@ def notes_button():
     return keyboard
 pass
 
+def site_buttons():
+    url = "https://www.reddit.com"
+    markup = InlineKeyboardMarkup()
+    keyboard = InlineKeyboardButton("Відкрити сайт", url = url)
+    markup.add(keyboard)
+    return markup
+pass
+
+
+def app_buttons():
+    IOS_url = "https://apps.apple.com/ua/app/%D1%94%D0%B4%D0%B8%D0%BD%D0%B0-%D1%88%D0%BA%D0%BE%D0%BB%D0%B0/id1447875950?l=ru"
+    Android_url = "https://play.google.com/store/apps/details?id=com.tatl.technology.usu_fp_schedule"
+    markup = InlineKeyboardMarkup()
+    keyboard = InlineKeyboardButton("Відкрити додаток на IOS", url = IOS_url)
+    keyboard_x2 = InlineKeyboardButton("Відкрити додаток на Android", url = Android_url)
+    markup.add(keyboard, keyboard_x2)
+    return markup
+pass
+
 
 
 
