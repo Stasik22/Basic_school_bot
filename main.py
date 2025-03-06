@@ -12,7 +12,7 @@ from Buttons import des
 from Buttons import site_buttons
 from Buttons import app_buttons
 
-API_TOKEN = '7417043537:AAE2iriywyeavMpluQ2iPNPjAAigVJxoYr0'
+API_TOKEN = 'dsffdsfdssdfsfdsdfsfdssss'
 bot = tb.TeleBot(API_TOKEN)
 
 NOTES_FILE = "notes.json"
