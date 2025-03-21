@@ -1,10 +1,9 @@
 import time
-import json
 import telebot as tb
 
-
 from datetime import datetime
-
+from Notes import  notes_save
+from Notes import  notes_data
 from Buttons import start_button_func, schedule_buttons, notes_button
 from Buttons import class_num
 from Schedule import scheule_11C
@@ -12,23 +11,8 @@ from Buttons import des
 from Buttons import site_buttons
 from Buttons import app_buttons
 
-API_TOKEN = 'dsffdsfdssdfsfdsdfsfdssss'
+API_TOKEN = '7417043537:AAE2iriywyeavMpluQ2iPNPjAAigVJxoYr0'
 bot = tb.TeleBot(API_TOKEN)
-
-NOTES_FILE = "notes.json"
-
-def notes_load():
-    try:
-        with open(NOTES_FILE, "r", encoding= "utf-8") as file:
-            return json.load(file)
-    except(FileNotFoundError, json.JSONDecodeError):
-        return {}
-
-def notes_save(notes):
-    with open(NOTES_FILE, "w", encoding="utf-8") as file:
-        json.dump(notes,file, indent=4, ensure_ascii=False)
-
-notes_data = notes_load()
 
 @bot.message_handler(commands=["Нотатки"])
 def notes(message):
@@ -43,12 +27,12 @@ def notes(message):
 
 
 @bot.message_handler(commands=["Створити"])
+
 def create_note(message):
     bot.send_message(message.chat.id, "<b>Напишіть вашу нотатку:</b>", parse_mode="html")
     bot.register_next_step_handler(message, save_note)
 
-
-def save_note(message):
+def  save_note(message):
     chat_id = str(message.chat.id)
     note_text = message.text.strip()
 
@@ -59,7 +43,6 @@ def save_note(message):
         bot.send_message(chat_id, "✅ Нотатку збережено!", parse_mode="html", reply_markup=notes_button())
     else:
         bot.send_message(chat_id, "❌ Нотатка не може бути порожньою!", parse_mode="html")
-
 
 @bot.message_handler(commands=["Очистити"])
 def clear_notes(message):
@@ -72,8 +55,6 @@ def clear_notes(message):
         bot.send_message(chat_id, "❗<b>У️ вас немає нотаток для видалення</b>", parse_mode="html")
     pass
 
-
-
 @bot.message_handler(commands=["Подивитись"])
 def view_notes(message):
     chat_id = str(message.chat.id)
@@ -83,8 +64,8 @@ def view_notes(message):
         notes_text = "\n".join(f"{i + 1}. {note.get('text', 'Невідома нотатка')} (📅 {note.get('date', 'Невідома дата')})" for i, note in enumerate(user_notes) if isinstance(note, dict))
         bot.send_message(chat_id, f"<b>Ваші нотатки:</b>\n{notes_text}" if notes_text else "<b>У вас ще немає нотаток.</b>",parse_mode="html")
     else:
-        bot.send_message(chat_id,"<b>‽Помилка в форматі нотаток</b>", parse_mode="html")
-    pass
+        bot.send_message(chat_id,"<b>‽Помилка в форматі нотаток</b>",reply_markup=notes_button(), parse_mode="html")
+    return view_notes
 
 
 @bot.message_handler(commands=['Сайт'])

@@ -1,0 +1,70 @@
+def notes_load():
+    try:
+        with open(NOTES_FILE, "r", encoding= "utf-8") as file:
+            return json.load(file)
+    except(FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def notes_save(notes):
+    with open(NOTES_FILE, "w", encoding="utf-8") as file:
+        json.dump(notes,file, indent=4, ensure_ascii=False)
+
+notes_data = notes_load()
+
+
+@bot.message_handler(commands=["Нотатки"])
+def notes(message):
+    chat_id = str(message.chat.id)
+    user_notes = notes_data.get(chat_id, [])
+
+    if isinstance(user_notes, list):
+        notes_text = "\n".join(f"{i + 1}. {note.get('text', 'Невідома нотатка')} (📅 {note.get('date', 'Невідома дата')})" for i, note in enumerate(user_notes) if isinstance(note, dict))
+        bot.send_message(chat_id, f"f<b>Ваші нотатки</b>\n{notes_text}" if notes_text else "<b>У вас ще немає нотаток</b>", parse_mode="html" ,reply_markup=notes_button())
+    else:
+        bot.send_message(chat_id, "<b>Помилка формату нотаток</b>", parse_mode="html", reply_markup=notes_button())
+
+
+@bot.message_handler(commands=["Створити"])
+def create_note(message):
+    bot.send_message(message.chat.id, "<b>Напишіть вашу нотатку:</b>", parse_mode="html")
+    bot.register_next_step_handler(message, save_note)
+
+
+def save_note(message):
+    chat_id = str(message.chat.id)
+    note_text = message.text.strip()
+
+    if note_text:
+        note_entry = {"text": note_text, "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+        notes_data.setdefault(chat_id, []).append(note_entry)
+        notes_save(notes_data)
+        bot.send_message(chat_id, "✅ Нотатку збережено!", parse_mode="html", reply_markup=notes_button())
+    else:
+        bot.send_message(chat_id, "❌ Нотатка не може бути порожньою!", parse_mode="html")
+
+
+@bot.message_handler(commands=["Очистити"])
+def clear_notes(message):
+    chat_id = str(message.chat.id)
+    if chat_id in notes_data:
+        del notes_data[chat_id]
+        notes_save(notes_data)
+        bot.send_message(chat_id, "🗑️<b>Немає нотаток,оскільки всі нотатки видалені</b>",parse_mode="html", reply_markup=notes_button())
+    else:
+        bot.send_message(chat_id, "❗<b>У️ вас немає нотаток для видалення</b>", parse_mode="html")
+    pass
+
+
+
+@bot.message_handler(commands=["Подивитись"])
+def view_notes(message):
+    chat_id = str(message.chat.id)
+    user_notes = notes_data.get(chat_id, [])
+
+    if isinstance(user_notes, list):
+        notes_text = "\n".join(f"{i + 1}. {note.get('text', 'Невідома нотатка')} (📅 {note.get('date', 'Невідома дата')})" for i, note in enumerate(user_notes) if isinstance(note, dict))
+        bot.send_message(chat_id, f"<b>Ваші нотатки:</b>\n{notes_text}" if notes_text else "<b>У вас ще немає нотаток.</b>",parse_mode="html")
+    else:
+        bot.send_message(chat_id,"<b>‽Помилка в форматі нотаток</b>", parse_mode="html")
+    pass

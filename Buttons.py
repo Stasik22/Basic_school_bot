@@ -43,7 +43,7 @@ def class_num():
 pass
 
 def notes_button():
-    keyboard = ReplyKeyboardMarkup(one_time_keyboard=True)
+    keyboard = ReplyKeyboardMarkup()
     create = InlineKeyboardButton("/Створити")
     deletee = InlineKeyboardButton("/Очистити")
     show = InlineKeyboardButton("/Подивитись")
