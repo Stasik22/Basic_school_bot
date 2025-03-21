@@ -11,7 +11,7 @@ from Buttons import des
 from Buttons import site_buttons
 from Buttons import app_buttons
 
-API_TOKEN = '7417043537:AAE2iriywyeavMpluQ2iPNPjAAigVJxoYr0'
+API_TOKEN = ''
 bot = tb.TeleBot(API_TOKEN)
 
 @bot.message_handler(commands=["Нотатки"])
