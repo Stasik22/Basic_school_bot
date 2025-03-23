@@ -47,7 +47,8 @@ def notes_button():
     create = InlineKeyboardButton("/Створити")
     deletee = InlineKeyboardButton("/Очистити")
     show = InlineKeyboardButton("/Подивитись")
-    keyboard.add(create, deletee, show)
+    quit = InlineKeyboardButton("/Вийти")
+    keyboard.add(create, deletee, show, quit)
     return keyboard
 pass
 

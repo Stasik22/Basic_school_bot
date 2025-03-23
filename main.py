@@ -11,7 +11,7 @@ from Buttons import des
 from Buttons import site_buttons
 from Buttons import app_buttons
 
-API_TOKEN = ''
+API_TOKEN = '7417043537:AAE2iriywyeavMpluQ2iPNPjAAigVJxoYr0'
 bot = tb.TeleBot(API_TOKEN)
 
 @bot.message_handler(commands=["Нотатки"])
@@ -66,6 +66,10 @@ def view_notes(message):
     else:
         bot.send_message(chat_id,"<b>‽Помилка в форматі нотаток</b>",reply_markup=notes_button(), parse_mode="html")
     return view_notes
+
+@bot.message_handler(commands=["Вийти"])
+def quite(message):
+    bot.send_message(message.chat.id, "<b>Виберіть одну з поданих функцій</b>", reply_markup=start_button_func(), parse_mode="html")
 
 
 @bot.message_handler(commands=['Сайт'])
