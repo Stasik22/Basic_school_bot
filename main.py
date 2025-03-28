@@ -141,24 +141,10 @@ def tenth(message):
     chat_id = message.chat.id
     bot.send_message(chat_id, "<b>Оберіть літеру вашого класу</b>", parse_mode="html", reply_markup=class_num())
 
-    @bot.message_handler(commands=["А"])
-    def A_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["Б"])
-    def B_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["В"])
-    def C_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["Г"])
-    def G_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
+    @bot.message_handler(commands=["А", "Б", "В", "Г"])
+    def class_letters(message):
+        if message.chat.id == "A":
+            bot.send_message(message.chat.id, "adasdasasddasdasd")
     pass
 
     @bot.message_handler(commands=["Текст"])
@@ -182,27 +168,11 @@ def tenth(message):
 def ninths(message):
     bot.send_message(message.chat.id, "<b>Оберіть літеру вашого класу</b>", parse_mode="html", reply_markup=class_num())
 
-    @bot.message_handler(commands=["А"])
-    def A_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-
-    pass
-
-    @bot.message_handler(commands=["Б"])
-    def B_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-
-    pass
-
-    @bot.message_handler(commands=["В"])
-    def C_class(message):
+    @bot.message_handler(commands=["А", "Б", "В", "Г"])
+    def class_letters(message):
         bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
     pass
 
-    @bot.message_handler(commands=["Г"])
-    def G_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
 
     @bot.message_handler(commands=["Текст"])
     def text_message(message):
@@ -219,28 +189,14 @@ def ninths(message):
             bot.send_message(message.chat.id, "<b>Оберіть функцію з поданих нижче</b>",reply_markup=start_button_func(), parse_mode="HTML")
         pass
     pass
+
 
 @bot.message_handler(commands=["8_класи"])
 def eighths(message):
     bot.send_message(message.chat.id, "<b>Оберіть літеру вашого класу</b>", parse_mode="html", reply_markup=class_num())
 
-    @bot.message_handler(commands=["А"])
-    def A_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["Б"])
-    def B_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["В"])
-    def C_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["Г"])
-    def G_class(message):
+    @bot.message_handler(commands=["А", "Б", "В", "Г"])
+    def class_letters(message):
         bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
     pass
 
@@ -260,27 +216,13 @@ def eighths(message):
         pass
     pass
 
+
 @bot.message_handler(commands=["7_класи"])
 def seventh(message):
     bot.send_message(message.chat.id, "<b>Оберіть літеру вашого класу</b>", parse_mode="html", reply_markup=class_num())
 
-    @bot.message_handler(commands=["А"])
-    def A_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["Б"])
-    def B_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["В"])
-    def C_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["Г"])
-    def G_class(message):
+    @bot.message_handler(commands=["А", "Б", "В", "Г"])
+    def class_letters(message):
         bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
     pass
 
@@ -300,27 +242,13 @@ def seventh(message):
         pass
     pass
 
+
 @bot.message_handler(commands=["6_класи"])
 def sixth(message):
     bot.send_message(message.chat.id, "<b>Оберіть літеру вашого класу</b>", parse_mode="html", reply_markup=class_num())
 
-    @bot.message_handler(commands=["А"])
-    def A_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["Б"])
-    def B_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["В"])
-    def C_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["Г"])
-    def G_class(message):
+    @bot.message_handler(commands=["А", "Б", "В", "Г"])
+    def class_letters(message):
         bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
     pass
 
@@ -340,27 +268,13 @@ def sixth(message):
         pass
     pass
 
+
 @bot.message_handler(commands=["5_класи"])
 def fifth(message):
     bot.send_message(message.chat.id, "<b>Оберіть літеру вашого класу</b>", parse_mode="html", reply_markup=class_num())
 
-    @bot.message_handler(commands=["А"])
-    def A_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["Б"])
-    def B_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["В"])
-    def C_class(message):
-        bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
-    pass
-
-    @bot.message_handler(commands=["Г"])
-    def G_class(message):
+    @bot.message_handler(commands=["А", "Б", "В", "Г"])
+    def class_letters(message):
         bot.send_message(message.chat.id, "<b>Виберіть варіант в якому ви хочете отримати повідомлення</b>",reply_markup=des(), parse_mode="html")
     pass
 
