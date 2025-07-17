@@ -15,5 +15,3 @@ def notes_save(notes):
 
 notes_data = notes_load()
 
-
-
