@@ -14,7 +14,7 @@ from Buttons import site_buttons
 from Buttons import app_buttons
 
 
-API_TOKEN = '7417043537:AAG0R5JM4Mr40WJavnQIExmAYPufWs-EweA'
+API_TOKEN = '7417043537:AAHzByL8I3DAnnOFqQsqQOfDQXa7-lD8eLI'
 bot = tb.TeleBot(API_TOKEN)
 
 url = "https://www.reddit.com"
