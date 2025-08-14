@@ -1,32 +1,112 @@
 import time
-from math import lgamma
-
 import telebot as tb
+import mysql.connector
 
 from datetime import datetime
+
+from telebot.types import ReplyKeyboardMarkup, InlineKeyboardButton
 from Notes import  notes_save
 from Notes import  notes_data
-from Buttons import start_button_func, schedule_buttons, notes_button
+from Buttons import schedule_buttons, notes_button, student_buttons
 from Buttons import class_num
 from Schedule import scheule_11C, schedule_11A, schedule_11B, schedule_11G, schedule_10A, schedule_10B, schedule_10C, schedule_10G, schedule_9A, schedule_9B, schedule_5C, schedule_5A, schedule_6A, schedule_7A,schedule_5B, schedule_6C, schedule_5G ,schedule_8A, schedule_6B, schedule_7B,schedule_8B, schedule_7C, schedule_6G, schedule_7G, schedule_8C, schedule_9C, schedule_8G, schedule_9G
 from Buttons import des
 from Buttons import site_buttons
 from Buttons import app_buttons
+from Buttons import teacher_buttons
 
 
-API_TOKEN = ''
+API_TOKEN = '7417043537:AAF7jkxbF4pgujPaTq8E34FP2HCrErdLy60'
 bot = tb.TeleBot(API_TOKEN)
 
 url = "https://www.reddit.com"
 
+db = mysql.connector.connect(
+    host="switchback.proxy.rlwy.net",
+    port=56311,
+    user="root",
+    password="sVwphPitdtSDfWTwNKJgkIDftAdQBheP",
+    database="railway"
+)
 
-@bot.message_handler(commands=["start"])
-def start_function(message):
-    bot.send_message(message.chat.id, "<b>Всіх вітаю!Це офіційний телеграм бот ліцею 5 в Ужгороді.</b>", parse_mode="html",reply_markup=start_button_func())
+cursor = db.cursor(dictionary=True)
+cursor.execute("SHOW TABLES;")
+for table in cursor.fetchall():
+    print(table)
+
+user_states = {}
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    keyboard = InlineKeyboardButton("🔐 Логін")
+    markup.add(keyboard)
+    bot.send_message(message.chat.id, "Вітаю! Натисніть Логін, щоб увійти:", reply_markup=markup)
+
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    keyboard = InlineKeyboardButton("🔐 Логін")
+    markup.add(keyboard)
+    bot.send_message(message.chat.id, "Вітаю! Натисніть Логін, щоб увійти:", reply_markup=markup)
+
+
+@bot.message_handler(func=lambda m: m.text in ["🔐 Логін", "🔐 Спробувати ще раз"])
+def ask_login(message):
+    user_states[message.chat.id] = {}
+    bot.send_message(message.chat.id, "Введіть ваш логін:")
+    bot.register_next_step_handler(message, get_username)
+
+
+def get_username(message):
+    user_states[message.chat.id]['username'] = message.text.strip()
+    bot.send_message(message.chat.id, "Введіть пароль:")
+    bot.register_next_step_handler(message, get_password)
+
+
+def get_password(message):
+    username = user_states[message.chat.id]['username']
+    password = message.text.strip()
+
+    cursor.execute("SELECT * FROM users WHERE username=%s AND password=%s", (username, password))
+    user = cursor.fetchone()
+
+    if user:
+        cursor.execute("UPDATE users SET telegram_id=%s WHERE id=%s", (message.chat.id, user['id']))
+        db.commit()
+
+        # Зберігаємо користувача
+        user_states[message.chat.id]['user'] = user
+
+        if user['role'] == 'teacher':
+            bot.send_message(message.chat.id, f"✅ Вхід успішний, вчителю {username}.", reply_markup=teacher_buttons())
+        else:
+            bot.send_message(message.chat.id, f"✅ Вхід успішний, учню {username}.", reply_markup=student_buttons())
+    else:
+        markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+        keyboard = InlineKeyboardButton("🔐 Спробувати ще раз")
+        markup.add(keyboard)
+        bot.send_message(message.chat.id, "❌ Невірний логін або пароль", reply_markup=markup)
+
+def teacher_buttons():
+    markup = ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add("Додати домашнє завдання")
+    return markup
+
+def student_buttons():
+    markup = ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add("Подивитись домашнє завдання")
+    return markup
+
+@bot.message_handler(func=lambda message: message.text in ["Додаток"])
+def app(message):
+    bot.send_message(message.chat.id,"<b>Ось наш додаток.Виберіть ОС якою ви користуєтесь задля подальшого відвідання додатку</b>",parse_mode="html", reply_markup=app_buttons())
+
 
 @bot.message_handler(func=lambda message: message.text in ["Повернутись на початок"])
 def quit(message):
-    bot.send_message(message.chat.id, "<b>Ви повернулись на початок</b>", parse_mode="html", reply_markup=start_button_func())
+    bot.send_message(message.chat.id, "<b>Ви повернулись на початок</b>", parse_mode="html")
 
 @bot.message_handler(func=lambda message: message.text in ["Додаток"])
 def app (message):
@@ -40,13 +120,12 @@ def app(message):
 
 @bot.message_handler(func=lambda message: message.text in ["Повернутись на початок"])
 def notes(message):
-    bot.send_message(message.chat.id, "<b>Виберіть одну з поданих функцій</b>", parse_mode="html", reply_markup=start_button_func())
+    bot.send_message(message.chat.id, "<b>Виберіть одну з поданих функцій</b>", parse_mode="html")
 
 @bot.message_handler(func=lambda message: message.text in ["Нотатки"])
 def notes(message):
         chat_id = str(message.chat.id)
         user_notes = notes_data.get(chat_id, [])
-
         if isinstance(user_notes, list):
             notes_text = "\n".join(f"{i + 1}. {note.get('text', 'Невідома нотатка')} (📅 {note.get('date', 'Невідома дата')})" for i, note in enumerate(user_notes) if isinstance(note, dict))
             bot.send_message(chat_id, f"f<b>Ваші нотатки</b>\n{notes_text}" if notes_text else "<b>У вас ще немає нотаток</b>", parse_mode="html" ,reply_markup=notes_button())
@@ -98,7 +177,7 @@ def view_notes(message):
 
 @bot.message_handler(func=lambda message: message.text == "Вийти")
 def quite(message):
-        bot.send_message(message.chat.id, "<b>Виберіть одну з поданих функцій</b>", reply_markup=start_button_func(), parse_mode="html")
+        bot.send_message(message.chat.id, "<b>Виберіть одну з поданих функцій</b>", parse_mode="html")
 
 
 @bot.message_handler(func=lambda message: message.text in ["Домашня робота"])
@@ -170,7 +249,7 @@ def send_schedule(message):
 
 
     time.sleep(1)
-    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", reply_markup=start_button_func(), parse_mode="html")
+    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html")
 
 user_states10 ={}
 
@@ -230,7 +309,7 @@ def send_schedule(message):
 
 
     time.sleep(1)
-    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", reply_markup=start_button_func(), parse_mode="html")
+    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html")
 
 
 user_states9 = {}
@@ -291,7 +370,7 @@ def send_schedule(message):
 
 
     time.sleep(1)
-    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", reply_markup=start_button_func(), parse_mode="html")
+    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html")
 
 user_states8 = {}
 
@@ -351,7 +430,7 @@ def send_schedule(message):
 
 
     time.sleep(1)
-    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", reply_markup=start_button_func(), parse_mode="html")
+    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html")
 
 user_states7 = {}
 
@@ -411,7 +490,7 @@ def send_schedule(message):
 
 
     time.sleep(1)
-    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", reply_markup=start_button_func(), parse_mode="html")
+    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html")
 
 user_states6 = {}
 
@@ -471,7 +550,7 @@ def send_schedule(message):
 
 
     time.sleep(1)
-    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", reply_markup=start_button_func(), parse_mode="html")
+    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html")
 
 user_states5 = {}
 
@@ -531,7 +610,7 @@ def send_schedule(message):
 
 
     time.sleep(1)
-    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", reply_markup=start_button_func(), parse_mode="html")
+    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html")
 
 
 bot.polling(non_stop=True)

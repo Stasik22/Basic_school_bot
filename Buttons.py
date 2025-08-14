@@ -1,11 +1,19 @@
 from telebot.types import InlineKeyboardButton, ReplyKeyboardMarkup, InlineKeyboardMarkup
-def start_button_func():
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True,row_width=2)
+
+def teacher_buttons():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    add_hometask = InlineKeyboardButton("Додати домашнє завдання")
+    del_hometask = InlineKeyboardButton("Видалити домашнє завдання")
+    keyboard.add(add_hometask, del_hometask)
+    return keyboard
+
+def student_buttons():
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     Schedule = InlineKeyboardButton("Розклад уроків")
     notes = InlineKeyboardButton("Нотатки")
     site = InlineKeyboardButton("Наш сайт")
     app = InlineKeyboardButton("Додаток")
-    homework = InlineKeyboardButton("Домашня робота")
+    homework = InlineKeyboardButton("Подивитись домашнє завдання")
     keyboard.add(Schedule, notes, site, app, homework)
     return keyboard
 
