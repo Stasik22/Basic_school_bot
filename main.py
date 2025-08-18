@@ -16,7 +16,7 @@ from Buttons import app_buttons
 from Buttons import teacher_buttons
 
 
-API_TOKEN = '7417043537:AAF7jkxbF4pgujPaTq8E34FP2HCrErdLy60'
+API_TOKEN = '.'
 bot = tb.TeleBot(API_TOKEN)
 
 url = "https://www.reddit.com"
@@ -35,14 +35,6 @@ for table in cursor.fetchall():
     print(table)
 
 user_states = {}
-
-@bot.message_handler(commands=['start'])
-def start(message):
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    keyboard = InlineKeyboardButton("🔐 Логін")
-    markup.add(keyboard)
-    bot.send_message(message.chat.id, "Вітаю! Натисніть Логін, щоб увійти:", reply_markup=markup)
-
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -90,14 +82,72 @@ def get_password(message):
         bot.send_message(message.chat.id, "❌ Невірний логін або пароль", reply_markup=markup)
 
 def teacher_buttons():
-    markup = ReplyKeyboardMarkup(resize_keyboard=True)
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     markup.add("Додати домашнє завдання")
     return markup
 
-def student_buttons():
-    markup = ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("Подивитись домашнє завдання")
-    return markup
+@bot.message_handler(func=lambda message: message.text == "Додати домашнє завдання")
+def add_homework(message):
+    msg = bot.send_message(message.chat.id, "Введіть домашнє завдання у форматі:\n\n" "Текст завдання | Дата (YYYY-MM-DD)")
+    bot.register_next_step_handler(msg, save_homework)
+
+
+def save_homework(message):
+    try:
+        # Розділяємо введений текст на "завдання" і "дату"
+        task_text, due_date_str = message.text.split("|", 1)
+        task_text = task_text.strip()
+        due_date_str = due_date_str.strip()
+
+        # Перетворюємо строку у дату
+        due_date = datetime.strptime(due_date_str, "%Y-%m-%d").date()
+
+    except Exception as e:
+        bot.send_message(message.chat.id, "⚠️ Невірний формат! Використовуйте:\n""Завдання | 2025-08-25")
+        return
+
+    # Шукаємо вчителя у таблиці users
+    cursor.execute("SELECT class, subject FROM users WHERE telegram_id=%s", (message.chat.id,))
+    teacher = cursor.fetchone()
+
+    if not teacher:
+        bot.send_message(message.chat.id, "❌ Ви не знайдені в базі користувачів.")
+        return
+
+    # Додаємо у таблицю homework
+    cursor.execute(
+        "INSERT INTO homework (class, subject, task, due_date, created_by) VALUES (%s, %s, %s, %s, %s)",
+        (teacher["class"], teacher["subject"], task_text, due_date, message.chat.id)
+    )
+    db.commit()
+
+
+    bot.send_message(message.chat.id,f"✅ Домашнє завдання додано!\n\n📘 Предмет: {teacher['subject']}\n🏫 Клас: {teacher['class']}\n📝 Завдання: {task_text}\n📅 До: {due_date}"
+    )
+
+
+@bot.message_handler(func=lambda message: message.text == "Моє домашнє завдання")
+def show_homework(message):
+    # шукаємо учня у БД
+    cursor.execute("SELECT class, subject FROM users WHERE telegram_id=%s", (message.chat.id,))
+    student = cursor.fetchone()
+
+    if not student:
+        bot.send_message(message.chat.id, "❌ Ви не знайдені в базі користувачів.")
+        return
+
+    # дістаємо всі завдання по його класу та предмету
+    cursor.execute("SELECT task, subject, created_at FROM homework WHERE class=%s AND subject=%s ORDER BY created_at DESC LIMIT 5",(student["class"], student["subject"])
+    )
+    homeworks = cursor.fetchall()
+
+    if not homeworks:
+        bot.send_message(message.chat.id, "📭 Для вас поки що немає домашніх завдань.")
+    else:
+        text = "📚 Ваші останні домашні завдання:\n\n"
+        for hw in homeworks:
+            text += f"📌 {hw['subject']} — {hw['task']} (дата: {hw['created_at']})\n\n"
+        bot.send_message(message.chat.id, text)
 
 @bot.message_handler(func=lambda message: message.text in ["Додаток"])
 def app(message):
@@ -120,7 +170,7 @@ def app(message):
 
 @bot.message_handler(func=lambda message: message.text in ["Повернутись на початок"])
 def notes(message):
-    bot.send_message(message.chat.id, "<b>Виберіть одну з поданих функцій</b>", parse_mode="html")
+    bot.send_message(message.chat.id, "<b>Виберіть одну з поданих функцій</b>", parse_mode="html", reply_markup=student_buttons())
 
 @bot.message_handler(func=lambda message: message.text in ["Нотатки"])
 def notes(message):
@@ -177,7 +227,7 @@ def view_notes(message):
 
 @bot.message_handler(func=lambda message: message.text == "Вийти")
 def quite(message):
-        bot.send_message(message.chat.id, "<b>Виберіть одну з поданих функцій</b>", parse_mode="html")
+        bot.send_message(message.chat.id, "<b>Виберіть одну з поданих функцій</b>", parse_mode="html", reply_markup=student_buttons())
 
 
 @bot.message_handler(func=lambda message: message.text in ["Домашня робота"])
@@ -249,7 +299,7 @@ def send_schedule(message):
 
 
     time.sleep(1)
-    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html")
+    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html", reply_markup=student_buttons())
 
 user_states10 ={}
 
@@ -309,7 +359,7 @@ def send_schedule(message):
 
 
     time.sleep(1)
-    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html")
+    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html", reply_markup=student_buttons())
 
 
 user_states9 = {}
@@ -370,7 +420,7 @@ def send_schedule(message):
 
 
     time.sleep(1)
-    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html")
+    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html", reply_markup=student_buttons())
 
 user_states8 = {}
 
@@ -430,7 +480,7 @@ def send_schedule(message):
 
 
     time.sleep(1)
-    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html")
+    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html", reply_markup=student_buttons())
 
 user_states7 = {}
 
@@ -490,7 +540,7 @@ def send_schedule(message):
 
 
     time.sleep(1)
-    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html")
+    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html", reply_markup=student_buttons())
 
 user_states6 = {}
 
@@ -550,7 +600,7 @@ def send_schedule(message):
 
 
     time.sleep(1)
-    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html")
+    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html", reply_markup=student_buttons())
 
 user_states5 = {}
 
@@ -610,7 +660,7 @@ def send_schedule(message):
 
 
     time.sleep(1)
-    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html")
+    bot.send_message(chat_id, "<b>Оберіть функцію з поданих нижче</b>", parse_mode="html", reply_markup=student_buttons())
 
 
 bot.polling(non_stop=True)

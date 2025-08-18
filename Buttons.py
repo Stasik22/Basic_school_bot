@@ -7,13 +7,14 @@ def teacher_buttons():
     keyboard.add(add_hometask, del_hometask)
     return keyboard
 
+
 def student_buttons():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     Schedule = InlineKeyboardButton("Розклад уроків")
     notes = InlineKeyboardButton("Нотатки")
     site = InlineKeyboardButton("Наш сайт")
     app = InlineKeyboardButton("Додаток")
-    homework = InlineKeyboardButton("Подивитись домашнє завдання")
+    homework = InlineKeyboardButton("Моє домашнє завдання")
     keyboard.add(Schedule, notes, site, app, homework)
     return keyboard
 
