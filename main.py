@@ -22,10 +22,10 @@ bot = tb.TeleBot(API_TOKEN)
 url = "https://www.reddit.com"
 
 db = mysql.connector.connect(
-    host="shuttle.proxy.rlwy.net",
-    port=52168,
+    host="shuttle.proxy",
+    port=8888,
     user="root",
-    password="vnFginSWsIhPQwaxmMPVXRmyfsBMmYff",
+    password="x",
     database="railway"
 )
 
